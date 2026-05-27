@@ -163,19 +163,19 @@ except Exception as e:
     st.error(f"模型初始化失败: {str(e)}")
     st.info("正在使用本地模拟模型...")
     
-    from langchain_core.language_models import BaseLanguageModel
-    from langchain_core.messages import HumanMessage
+    from langchain_core.messages import HumanMessage, AIMessage
     
-    class SimpleLocalModel(BaseLanguageModel):
-        def _generate(self, messages, stop=None, run_manager=None):
-            last_message = messages[-1]
-            if isinstance(last_message, HumanMessage):
-                content = last_message.content
-                if '你好' in content or 'Hello' in content:
-                    return {'generations': [{'text': '你好！我是AI助手。\n\n注意：当前使用本地模拟模型，如需完整功能，请配置API密钥。'}]}
-                else:
-                    return {'generations': [{'text': f'收到消息：{content}\n\n注意：当前使用本地模拟模型，如需完整功能，请配置API密钥。'}]}
-            return {'generations': [{'text': '我是AI助手。'}]}
+    class SimpleLocalModel:
+        def invoke(self, messages):
+            if isinstance(messages, list) and len(messages) > 0:
+                last_message = messages[-1]
+                if isinstance(last_message, HumanMessage):
+                    content = last_message.content
+                    if '你好' in content or 'Hello' in content:
+                        return AIMessage(content='你好！我是AI助手。\n\n注意：当前使用本地模拟模型，如需完整功能，请配置API密钥。')
+                    else:
+                        return AIMessage(content=f'收到消息：{content}\n\n注意：当前使用本地模拟模型，如需完整功能，请配置API密钥。')
+            return AIMessage(content='我是AI助手。')
     
     model = SimpleLocalModel()
 
