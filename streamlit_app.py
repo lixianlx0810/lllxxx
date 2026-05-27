@@ -97,6 +97,8 @@ class ModelManager:
     
     def _initialize_model(self):
         if self.model_type == 'ollama':
+            if ChatOllama is None:
+                raise ValueError("ChatOllama 模块未安装")
             model_name = os.getenv('OLLAMA_MODEL', 'llama3:8b')
             base_url = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
             return ChatOllama(model=model_name, base_url=base_url)
@@ -156,9 +158,26 @@ class ModelManager:
 try:
     model_manager = ModelManager()
     model = model_manager.get_model()
+    st.success(f"模型初始化成功: {model_manager.model_type}")
 except Exception as e:
     st.error(f"模型初始化失败: {str(e)}")
-    model = None
+    st.info("正在使用本地模拟模型...")
+    
+    from langchain_core.language_models import BaseLanguageModel
+    from langchain_core.messages import HumanMessage
+    
+    class SimpleLocalModel(BaseLanguageModel):
+        def _generate(self, messages, stop=None, run_manager=None):
+            last_message = messages[-1]
+            if isinstance(last_message, HumanMessage):
+                content = last_message.content
+                if '你好' in content or 'Hello' in content:
+                    return {'generations': [{'text': '你好！我是AI助手。\n\n注意：当前使用本地模拟模型，如需完整功能，请配置API密钥。'}]}
+                else:
+                    return {'generations': [{'text': f'收到消息：{content}\n\n注意：当前使用本地模拟模型，如需完整功能，请配置API密钥。'}]}
+            return {'generations': [{'text': '我是AI助手。'}]}
+    
+    model = SimpleLocalModel()
 
 # 侧边栏 - 会话管理
 with st.sidebar:
