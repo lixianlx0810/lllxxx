@@ -34,7 +34,42 @@ except ImportError:
     RecursiveCharacterTextSplitter = None
 
 import tempfile
-from utils.document_processor import process_document
+import os
+
+try:
+    import pdfplumber
+except ImportError:
+    pdfplumber = None
+
+try:
+    import docx2txt
+except ImportError:
+    docx2txt = None
+
+def process_pdf(file_path):
+    text = ""
+    with pdfplumber.open(file_path) as pdf:
+        for page in pdf.pages:
+            text += page.extract_text() + "\n"
+    return text
+
+def process_docx(file_path):
+    return docx2txt.process(file_path)
+
+def process_txt(file_path):
+    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+        return f.read()
+
+def process_document(file_path):
+    ext = os.path.splitext(file_path)[1].lower()
+    if ext == '.pdf':
+        return process_pdf(file_path)
+    elif ext == '.docx':
+        return process_docx(file_path)
+    elif ext == '.txt':
+        return process_txt(file_path)
+    else:
+        raise ValueError(f"不支持的文件格式: {ext}")
 
 # 加载环境变量
 load_dotenv()
