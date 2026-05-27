@@ -278,8 +278,11 @@ with tab2:
                 context = "\n".join([doc.page_content for doc in docs])
                 prompt = f"基于以下文档内容回答问题：\n\n{context}\n\n问题：{question}\n\n回答："
                 
-                response = model.invoke([{"role": "user", "content": prompt}])
-                answer = response.content
+                try:
+                    response = model.invoke([HumanMessage(content=prompt)])
+                    answer = response.content
+                except Exception as e:
+                    answer = f"API调用失败: {str(e)}"
                 
                 st.subheader("回答:")
                 st.markdown(answer)
@@ -305,8 +308,11 @@ with tab4:
             if question:
                 prompt += f"\n额外问题：{question}\n"
             
-            response = model.invoke([{"role": "user", "content": prompt}])
-            content = response.content
+            try:
+                response = model.invoke([HumanMessage(content=prompt)])
+                content = response.content
+            except Exception as e:
+                content = f"API调用失败: {str(e)}"
             
             st.subheader("代码解释:")
             st.markdown(content)
