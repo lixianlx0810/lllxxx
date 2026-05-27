@@ -30,6 +30,11 @@ except ImportError:
     OllamaEmbeddings = None
     RecursiveCharacterTextSplitter = None
 
+try:
+    from langchain_openai import OpenAIEmbeddings
+except ImportError:
+    OpenAIEmbeddings = None
+
 import tempfile
 import os
 
@@ -268,13 +273,34 @@ with tab2:
                     "vectorstore": None
                 }
             
-            embeddings = OllamaEmbeddings(model="llama3:8b")
-            vectorstore = FAISS.from_texts(chunks, embeddings)
+            model_type = os.getenv('MODEL_TYPE', 'deepseek')
+            if model_type == 'qwen' and OpenAIEmbeddings is not None:
+                api_key = os.getenv('DASHSCOPE_API_KEY')
+                base_url = os.getenv('DASHSCOPE_BASE_URL', 'https://dashscope.aliyuncs.com/compatible-mode/v1')
+                embeddings = OpenAIEmbeddings(
+                    api_key=api_key,
+                    base_url=base_url,
+                    model="text-embedding-v3"
+                )
+            elif model_type == 'deepseek' and OpenAIEmbeddings is not None:
+                api_key = os.getenv('DEEPSEEK_API_KEY')
+                base_url = os.getenv('DEEPSEEK_BASE_URL', 'https://api.deepseek.com/v1')
+                embeddings = OpenAIEmbeddings(
+                    api_key=api_key,
+                    base_url=base_url
+                )
+            elif model_type == 'openai' and OpenAIEmbeddings is not None:
+                api_key = os.getenv('OPENAI_API_KEY')
+                embeddings = OpenAIEmbeddings(api_key=api_key)
+            else:
+                st.error("嵌入服务未配置，文档解析功能不可用")
+                embeddings = None
             
-            st.session_state.document_store[st.session_state.current_session]["documents"].append(uploaded_file.name)
-            st.session_state.document_store[st.session_state.current_session]["vectorstore"] = vectorstore
-            
-            st.success(f"文档上传成功: {uploaded_file.name}")
+            if embeddings:
+                vectorstore = FAISS.from_texts(chunks, embeddings)
+                st.session_state.document_store[st.session_state.current_session]["documents"].append(uploaded_file.name)
+                st.session_state.document_store[st.session_state.current_session]["vectorstore"] = vectorstore
+                st.success(f"文档上传成功: {uploaded_file.name}")
         finally:
             if os.path.exists(temp_file_path):
                 os.remove(temp_file_path)
