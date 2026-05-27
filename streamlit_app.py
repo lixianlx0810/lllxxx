@@ -201,13 +201,21 @@ with tab1:
             st.markdown(prompt)
         
         if model:
+            from langchain_core.messages import HumanMessage, AIMessage
+            
             messages = []
             for item in st.session_state.messages:
-                messages.append({"role": item["role"], "content": item["content"]})
-            messages.append({"role": "user", "content": prompt})
+                if item["role"] == "user":
+                    messages.append(HumanMessage(content=item["content"]))
+                else:
+                    messages.append(AIMessage(content=item["content"]))
+            messages.append(HumanMessage(content=prompt))
             
-            response = model.invoke(messages)
-            assistant_response = response.content
+            try:
+                response = model.invoke(messages)
+                assistant_response = response.content
+            except Exception as e:
+                assistant_response = f"API调用失败: {str(e)}"
             
             with st.chat_message("assistant"):
                 st.markdown(assistant_response)
