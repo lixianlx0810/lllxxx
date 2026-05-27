@@ -24,7 +24,7 @@ except ImportError:
 try:
     from langchain_community.vectorstores import FAISS
     from langchain_community.embeddings import OllamaEmbeddings
-    from langchain.text_splitter import RecursiveCharacterTextSplitter
+    from langchain_text_splitters import RecursiveCharacterTextSplitter
 except ImportError:
     FAISS = None
     OllamaEmbeddings = None
@@ -119,7 +119,7 @@ class ModelManager:
             if ChatOpenAI is None:
                 raise ValueError("langchain_openai 模块未安装")
             api_key = os.getenv('DASHSCOPE_API_KEY')
-            model_name = os.getenv('QWEN_MODEL', 'qwen2-72b-instruct')
+            model_name = os.getenv('QWEN_MODEL', 'qwen-plus')
             base_url = os.getenv('DASHSCOPE_BASE_URL', 'https://dashscope.aliyuncs.com/compatible-mode/v1')
             if not api_key:
                 raise ValueError("DASHSCOPE_API_KEY 未配置")
@@ -324,6 +324,8 @@ with tab4:
         if not model:
             st.error("模型未初始化")
         else:
+            from langchain_core.messages import HumanMessage
+            
             prompt = f"请分析以下{language}代码：\n\n```\n{code}\n```\n\n请提供：\n1. 代码的功能和逻辑解释\n2. 代码的工作原理和实现机制\n3. 代码的改进建议\n4. 代码中潜在的问题和边界情况\n"
             
             if question:
