@@ -121,12 +121,14 @@ class ModelManager:
         elif self.model_type == 'qwen':
             if QianfanChatEndpoint is None:
                 raise ValueError("QianfanChatEndpoint 模块未安装")
-            dashscope_api_key = os.getenv('DASHSCOPE_API_KEY')
+            access_key = os.getenv('DASHSCOPE_ACCESS_KEY')
+            secret_key = os.getenv('DASHSCOPE_SECRET_KEY')
             model_name = os.getenv('QWEN_MODEL', 'qwen2-72b-instruct')
-            if not dashscope_api_key:
-                raise ValueError("DASHSCOPE_API_KEY 未配置")
+            if not access_key or not secret_key:
+                raise ValueError("DASHSCOPE_ACCESS_KEY 和 DASHSCOPE_SECRET_KEY 未配置")
             return QianfanChatEndpoint(
-                dashscope_api_key=dashscope_api_key, 
+                access_key=access_key, 
+                secret_key=secret_key, 
                 model=model_name
             )
         elif self.model_type == 'deepseek':
