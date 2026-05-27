@@ -29,3 +29,4 @@ python-dotenv
 tiktoken
 pydantic
 pydantic-settings
+qianfan
