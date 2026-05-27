@@ -126,11 +126,10 @@ class ModelManager:
             model_name = os.getenv('QWEN_MODEL', 'qwen2-72b-instruct')
             if not access_key or not secret_key:
                 raise ValueError("DASHSCOPE_ACCESS_KEY 和 DASHSCOPE_SECRET_KEY 未配置")
-            return QianfanChatEndpoint(
-                access_key=access_key, 
-                secret_key=secret_key, 
-                model=model_name
-            )
+            import os
+            os.environ['DASHSCOPE_ACCESS_KEY'] = access_key
+            os.environ['DASHSCOPE_SECRET_KEY'] = secret_key
+            return QianfanChatEndpoint(model=model_name)
         elif self.model_type == 'deepseek':
             if ChatOpenAI is None:
                 raise ValueError("langchain_openai 模块未安装")
