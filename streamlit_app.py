@@ -227,9 +227,14 @@ with tab1:
             st.markdown(prompt)
         
         if model:
-            from langchain_core.messages import HumanMessage, AIMessage
+            from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+            from datetime import datetime
             
             messages = []
+            # 添加当前时间提示
+            current_time = datetime.now().strftime("%Y年%m月%d日, %A")
+            messages.append(SystemMessage(content=f"当前时间是: {current_time}。请根据这个时间回答问题。"))
+            
             for item in st.session_state.messages:
                 if item["role"] == "user":
                     messages.append(HumanMessage(content=item["content"]))
@@ -279,8 +284,7 @@ with tab2:
                 base_url = os.getenv('DASHSCOPE_BASE_URL', 'https://dashscope.aliyuncs.com/compatible-mode/v1')
                 embeddings = OpenAIEmbeddings(
                     api_key=api_key,
-                    base_url=base_url,
-                    model="text-embedding-v1"
+                    base_url=base_url
                 )
             elif model_type == 'deepseek' and OpenAIEmbeddings is not None:
                 api_key = os.getenv('DEEPSEEK_API_KEY')
