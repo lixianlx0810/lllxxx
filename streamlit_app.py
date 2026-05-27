@@ -280,7 +280,7 @@ with tab2:
                 embeddings = OpenAIEmbeddings(
                     api_key=api_key,
                     base_url=base_url,
-                    model="text-embedding-v3"
+                    model="text-embedding-v1"
                 )
             elif model_type == 'deepseek' and OpenAIEmbeddings is not None:
                 api_key = os.getenv('DEEPSEEK_API_KEY')
