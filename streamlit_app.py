@@ -121,11 +121,14 @@ class ModelManager:
         elif self.model_type == 'qwen':
             if QianfanChatEndpoint is None:
                 raise ValueError("QianfanChatEndpoint 模块未安装")
-            api_key = os.getenv('DASHSCOPE_API_KEY')
+            dashscope_api_key = os.getenv('DASHSCOPE_API_KEY')
             model_name = os.getenv('QWEN_MODEL', 'qwen2-72b-instruct')
-            if not api_key:
+            if not dashscope_api_key:
                 raise ValueError("DASHSCOPE_API_KEY 未配置")
-            return QianfanChatEndpoint(api_key=api_key, model=model_name)
+            return QianfanChatEndpoint(
+                dashscope_api_key=dashscope_api_key, 
+                model=model_name
+            )
         elif self.model_type == 'deepseek':
             if ChatOpenAI is None:
                 raise ValueError("langchain_openai 模块未安装")
