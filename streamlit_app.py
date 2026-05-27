@@ -14,10 +14,7 @@ try:
 except ImportError:
     ChatAnthropic = None
 
-try:
-    from langchain_community.chat_models import QianfanChatEndpoint
-except ImportError:
-    QianfanChatEndpoint = None
+# 通义千问使用 DashScope，兼容 OpenAI 接口
 
 try:
     from langchain_community.chat_models import ChatOllama
@@ -119,17 +116,17 @@ class ModelManager:
                 raise ValueError("ANTHROPIC_API_KEY 未配置")
             return ChatAnthropic(api_key=api_key, model=model_name)
         elif self.model_type == 'qwen':
-            if QianfanChatEndpoint is None:
-                raise ValueError("QianfanChatEndpoint 模块未安装")
-            access_key = os.getenv('DASHSCOPE_ACCESS_KEY')
-            secret_key = os.getenv('DASHSCOPE_SECRET_KEY')
+            if ChatOpenAI is None:
+                raise ValueError("langchain_openai 模块未安装")
+            api_key = os.getenv('DASHSCOPE_API_KEY')
             model_name = os.getenv('QWEN_MODEL', 'qwen2-72b-instruct')
-            if not access_key or not secret_key:
-                raise ValueError("DASHSCOPE_ACCESS_KEY 和 DASHSCOPE_SECRET_KEY 未配置")
-            return QianfanChatEndpoint(
-                access_key=access_key, 
-                secret_key=secret_key, 
-                model=model_name
+            base_url = os.getenv('DASHSCOPE_BASE_URL', 'https://dashscope.aliyuncs.com/compatible-mode/v1')
+            if not api_key:
+                raise ValueError("DASHSCOPE_API_KEY 未配置")
+            return ChatOpenAI(
+                api_key=api_key,
+                model=model_name,
+                base_url=base_url
             )
         elif self.model_type == 'deepseek':
             if ChatOpenAI is None:
