@@ -4,6 +4,7 @@ uvicorn
 langchain
 langchain-community
 langchain-core
+langchain-openai 
 
 # 前端依赖
 streamlit
