@@ -278,10 +278,10 @@ with tab2:
                     "vectorstore": None
                 }
             
-            model_type = os.getenv('MODEL_TYPE', 'deepseek')
+            model_type = os.getenv('MODEL_TYPE', 'qwen')
             if model_type == 'qwen' and OpenAIEmbeddings is not None:
                 api_key = os.getenv('DASHSCOPE_API_KEY')
-                base_url = os.getenv('DASHSCOPE_BASE_URL', 'https://dashscope.aliyuncs.com/api/text-embedding')
+                embed_base_url = os.getenv('DASHSCOPE_BASE_URL', 'https://dashscope.aliyuncs.com/compatible-mode/v1')
                 if not api_key:
                     st.error("请配置 DASHSCOPE_API_KEY")
                     embeddings = None
@@ -289,7 +289,7 @@ with tab2:
                     try:
                         embeddings = OpenAIEmbeddings(
                             api_key=api_key,
-                            base_url=base_url,
+                            base_url=embed_base_url,
                             model="text-embedding-v1"
                         )
                     except Exception as e:
