@@ -4,7 +4,9 @@ uvicorn
 langchain
 langchain-community
 langchain-core
-langchain-openai 
+langchain-openai
+langchain-text-splitters
+dashscope
 
 # 前端依赖
 streamlit

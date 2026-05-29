@@ -35,6 +35,11 @@ try:
 except ImportError:
     OpenAIEmbeddings = None
 
+try:
+    from dashscope import TextEmbedding
+except ImportError:
+    TextEmbedding = None
+
 import tempfile
 import os
 
@@ -279,19 +284,31 @@ with tab2:
                 }
             
             model_type = os.getenv('MODEL_TYPE', 'qwen')
-            if model_type == 'qwen' and OpenAIEmbeddings is not None:
+            if model_type == 'qwen':
                 api_key = os.getenv('DASHSCOPE_API_KEY')
-                embed_base_url = os.getenv('DASHSCOPE_BASE_URL', 'https://dashscope.aliyuncs.com/compatible-mode/v1')
                 if not api_key:
                     st.error("请配置 DASHSCOPE_API_KEY")
                     embeddings = None
                 else:
                     try:
-                        embeddings = OpenAIEmbeddings(
-                            api_key=api_key,
-                            base_url=embed_base_url,
-                            model="text-embedding-v1"
-                        )
+                        import dashscope
+                        dashscope.api_key = api_key
+                        
+                        class DashScopeEmbeddings:
+                            def embed_documents(self, texts):
+                                response = dashscope.TextEmbedding.call(
+                                    model=dashscope.TextEmbedding.Models.text_embedding_v1,
+                                    input=texts
+                                )
+                                if response.status_code == 200:
+                                    return [item['embedding'] for item in response.output['embeddings']]
+                                else:
+                                    raise ValueError(f"嵌入服务调用失败: {response.message}")
+                            
+                            def embed_query(self, text):
+                                return self.embed_documents([text])[0]
+                        
+                        embeddings = DashScopeEmbeddings()
                     except Exception as e:
                         st.error(f"嵌入服务初始化失败: {str(e)}")
                         embeddings = None
