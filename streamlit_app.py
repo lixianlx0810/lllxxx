@@ -94,7 +94,7 @@ if "document_store" not in st.session_state:
 
 class ModelManager:
     def __init__(self):
-        self.model_type = os.getenv('MODEL_TYPE', 'deepseek')
+        self.model_type = os.getenv('MODEL_TYPE', 'qwen')
         self.model = self._initialize_model()
     
     def _initialize_model(self):
@@ -281,12 +281,20 @@ with tab2:
             model_type = os.getenv('MODEL_TYPE', 'deepseek')
             if model_type == 'qwen' and OpenAIEmbeddings is not None:
                 api_key = os.getenv('DASHSCOPE_API_KEY')
-                base_url = os.getenv('DASHSCOPE_BASE_URL', 'https://dashscope.aliyuncs.com/compatible-mode/v1')
-                embeddings = OpenAIEmbeddings(
-                    api_key=api_key,
-                    base_url=base_url,
-                    model="text-embedding-v1"
-                )
+                base_url = os.getenv('DASHSCOPE_BASE_URL', 'https://dashscope.aliyuncs.com/api/text-embedding')
+                if not api_key:
+                    st.error("请配置 DASHSCOPE_API_KEY")
+                    embeddings = None
+                else:
+                    try:
+                        embeddings = OpenAIEmbeddings(
+                            api_key=api_key,
+                            base_url=base_url,
+                            model="text-embedding-v1"
+                        )
+                    except Exception as e:
+                        st.error(f"嵌入服务初始化失败: {str(e)}")
+                        embeddings = None
             elif model_type == 'openai' and OpenAIEmbeddings is not None:
                 api_key = os.getenv('OPENAI_API_KEY')
                 embeddings = OpenAIEmbeddings(api_key=api_key)
