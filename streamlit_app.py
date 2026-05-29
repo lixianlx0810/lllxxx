@@ -350,6 +350,8 @@ with tab2:
             if not vectorstore or not model:
                 st.error("文档或模型未准备好")
             else:
+                from langchain_core.messages import HumanMessage
+                
                 docs = vectorstore.similarity_search(question, k=3)
                 context = "\n".join([doc.page_content for doc in docs])
                 prompt = f"基于以下文档内容回答问题：\n\n{context}\n\n问题：{question}\n\n回答："
