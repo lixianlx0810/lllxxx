@@ -284,20 +284,17 @@ with tab2:
                 base_url = os.getenv('DASHSCOPE_BASE_URL', 'https://dashscope.aliyuncs.com/compatible-mode/v1')
                 embeddings = OpenAIEmbeddings(
                     api_key=api_key,
-                    base_url=base_url
-                )
-            elif model_type == 'deepseek' and OpenAIEmbeddings is not None:
-                api_key = os.getenv('DEEPSEEK_API_KEY')
-                base_url = os.getenv('DEEPSEEK_BASE_URL', 'https://api.deepseek.com/v1')
-                embeddings = OpenAIEmbeddings(
-                    api_key=api_key,
-                    base_url=base_url
+                    base_url=base_url,
+                    model="text-embedding-v1"
                 )
             elif model_type == 'openai' and OpenAIEmbeddings is not None:
                 api_key = os.getenv('OPENAI_API_KEY')
                 embeddings = OpenAIEmbeddings(api_key=api_key)
+            elif model_type == 'deepseek' and OllamaEmbeddings is not None:
+                st.warning("DeepSeek不支持嵌入服务，正在使用本地Ollama嵌入（仅本地运行时可用）")
+                embeddings = OllamaEmbeddings(model="llama3:8b")
             else:
-                st.error("嵌入服务未配置，文档解析功能不可用")
+                st.error("文档解析功能需要配置支持嵌入服务的模型（Qwen或OpenAI）")
                 embeddings = None
             
             if embeddings:
