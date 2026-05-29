@@ -295,6 +295,9 @@ with tab2:
                         dashscope.api_key = api_key
                         
                         class DashScopeEmbeddings:
+                            def __call__(self, text):
+                                return self.embed_query(text)
+                            
                             def embed_documents(self, texts):
                                 response = dashscope.TextEmbedding.call(
                                     model=dashscope.TextEmbedding.Models.text_embedding_v1,
